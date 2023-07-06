@@ -28,11 +28,18 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const appoinmentOptionsCollection = client.db("b6doctorsportal").collection("appoinmentOptions");
-
+    const bookingsCollection = client.db("b6doctorsportal").collection("bookings");
     app.get("/appoinmentOptions",async(req,res)=>{
       const query={};
       const options=await appoinmentOptionsCollection.find(query).toArray();
       res.send(options)
+    })
+
+    app.post("/bookings",async(req,res)=>{
+      const booking=req.body;
+      console.log(booking);
+      const result=await bookingsCollection.insertOne(booking);
+      res.send(result)
     })
   } 
   finally{
