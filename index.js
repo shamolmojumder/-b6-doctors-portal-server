@@ -38,8 +38,10 @@ async function run() {
       const alreadyyBooked=await bookingsCollection.find(bookingQuery).toArray();
       options.forEach(option=>{
         const optionBooked=alreadyyBooked.filter(book=>book.treatment===option.name);
-        const bookedSlot=optionBooked.map(book=>book.slot)
-        console.log(option.name,bookedSlot,date);
+        const bookedSlots=optionBooked.map(book=>book.slot);
+        const remainingSlots=option.slots.filter(slot=>!bookedSlots.includes(slot))
+        option.slots=remainingSlots;
+        console.log("new request",option.name,remainingSlots.length,date);
       })
       res.send(options)
     })
