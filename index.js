@@ -29,15 +29,23 @@ async function run() {
   try {
     const appoinmentOptionsCollection = client.db("b6doctorsportal").collection("appoinmentOptions");
     const bookingsCollection = client.db("b6doctorsportal").collection("bookings");
+
     app.get("/appoinmentOptions",async(req,res)=>{
+      const date=req.query.date;
       const query={};
       const options=await appoinmentOptionsCollection.find(query).toArray();
+      const bookingQuery={appoinmentDate:date};
+      const alreadyyBooked=await bookingsCollection.find(bookingQuery).toArray();
+      options.forEach(option=>{
+        const optionBooked=alreadyyBooked.filter(book=>book.treatment===option.name);
+        const bookedSlot=optionBooked.map(book=>book.slot)
+        console.log(option.name,bookedSlot,date);
+      })
       res.send(options)
     })
 
     app.post("/bookings",async(req,res)=>{
       const booking=req.body;
-      console.log(booking);
       const result=await bookingsCollection.insertOne(booking);
       res.send(result)
     })
@@ -50,7 +58,7 @@ run().catch(console.dir);
 
 
 app.get('/', async(req, res) => {
-  res.send('Doctors portal')
+  res.send('Wellcome to Doctors portal')
 })
 
 app.listen(port, () => {
