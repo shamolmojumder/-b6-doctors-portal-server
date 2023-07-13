@@ -46,6 +46,52 @@ async function run() {
       res.send(options)
     })
 
+    app.get("v2/appoinmentOptions",async(req,res)=>{
+      const date=req.query.date;
+      const options= await appoinmentOptionsCollection.aggregate([
+        {
+          $lookup:{
+            from: "bookings",
+            localField: "name",
+            foreignField: "treatment",
+            pipeline: [
+              {
+                $match:{
+                  $expr:{
+                    $ep:['$appoinmentDate',date]
+                  }
+                }
+              }
+            ],
+            as: "booked"
+          }
+        },
+        {
+          $project:{
+            name:1,
+            slots:1,
+            booked:{
+              $map:{
+                input:'$booked',
+                as:"book",
+                in:"$$book.slot"
+              }
+            }
+          }
+        },
+        {
+           $project:{
+            name:1,
+            slots:{
+              $setDifference:["$slots","$booked"]
+            }
+           } 
+        }
+      ]).toArray();
+      res.send(options)
+    })
+
+
     app.post("/bookings",async(req,res)=>{
       const booking=req.body;
       const result=await bookingsCollection.insertOne(booking);
