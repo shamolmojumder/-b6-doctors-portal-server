@@ -41,7 +41,7 @@ async function run() {
         const bookedSlots=optionBooked.map(book=>book.slot);
         const remainingSlots=option.slots.filter(slot=>!bookedSlots.includes(slot))
         option.slots=remainingSlots;
-        console.log("new request",option.name,remainingSlots.length,date);
+        // console.log("new request",option.name,remainingSlots.length,date);
       })
       res.send(options)
     })
@@ -94,6 +94,19 @@ async function run() {
 
     app.post("/bookings",async(req,res)=>{
       const booking=req.body;
+      console.log(booking);
+      const query={
+        appoinmentDate:booking.appoinmentDate,
+        email:booking.enail,
+        treatment:booking.treatment
+      }
+      const alreadyBooked=await bookingsCollection.find(query).toArray()
+      
+      if (alreadyBooked.length) {
+        const message=`You already have a booking on ${booking.appoinmentDate}`
+        return res.send({acknowledged:false,message})
+      }
+      
       const result=await bookingsCollection.insertOne(booking);
       res.send(result)
     })
