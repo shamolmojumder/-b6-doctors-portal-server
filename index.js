@@ -35,9 +35,9 @@ async function run() {
       const query={};
       const options=await appoinmentOptionsCollection.find(query).toArray();
       const bookingQuery={appoinmentDate:date};
-      const alreadyyBooked=await bookingsCollection.find(bookingQuery).toArray();
+      const alreadyBooked=await bookingsCollection.find(bookingQuery).toArray();
       options.forEach(option=>{
-        const optionBooked=alreadyyBooked.filter(book=>book.treatment===option.name);
+        const optionBooked=alreadyBooked.filter(book=>book.treatment===option.name);
         const bookedSlots=optionBooked.map(book=>book.slot);
         const remainingSlots=option.slots.filter(slot=>!bookedSlots.includes(slot))
         option.slots=remainingSlots;
@@ -97,7 +97,7 @@ async function run() {
       console.log(booking);
       const query={
         appoinmentDate:booking.appoinmentDate,
-        email:booking.enail,
+        email:booking.email,
         treatment:booking.treatment
       }
       const alreadyBooked=await bookingsCollection.find(query).toArray()
